@@ -1,0 +1,2 @@
+C:/Users/HP/PycharmProjects/TSL-Alphabet-Detection/sign_sound/android/app/.cxx/RelWithDebInfo/5yq1i3c4/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/HP/PycharmProjects/TSL-Alphabet-Detection/sign_sound/android/app/.cxx/RelWithDebInfo/5yq1i3c4/arm64-v8a/CMakeFiles/rebuild_cache.dir

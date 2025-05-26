@@ -1,0 +1,8 @@
+{
+    "detect" : "كشف",
+    "changeLanguage" : "تغيير اللغة",
+    "english" : "إنجليزية",
+    "turkish" : "التركية",
+    "arabic" : "العربية",
+    "liveHandDetection" : "كشف اليد المباشر"
+}

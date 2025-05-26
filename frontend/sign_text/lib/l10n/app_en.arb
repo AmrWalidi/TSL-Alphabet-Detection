@@ -1,0 +1,26 @@
+{
+    "detect" : "Detect",
+    "@detect": {
+        "description" : "detection button"
+    },
+    "changeLanguage" : "Change Language",
+    "@changeLanguage": {
+        "description" : "language change"
+    },
+    "english" : "English",
+    "@english": {
+        "description" : "English Language"
+    },
+    "turkish" : "Turkish",
+    "@turkish": {
+        "description" : "Turkish Language"
+    },
+    "arabic" : "Arabic",
+    "@arabic": {
+        "description" : "Arabic Language"
+    },
+    "liveHandDetection" : "Live Hand Detection",
+    "@liveHandDetection": {
+        "description" : "live Hand Detection"
+    }
+}

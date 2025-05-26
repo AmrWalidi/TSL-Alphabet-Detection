@@ -1,0 +1,1 @@
+C:\Users\HP\PycharmProjects\TSL-Alphabet-Detection\sign_sound\build\app\intermediates\cxx\RelWithDebInfo\5yq1i3c4\obj\x86

@@ -1,0 +1,8 @@
+{
+    "detect" : "Tespit Et",
+    "changeLanguage" : "Dili degistir",
+    "english" : "İngilizce",
+    "turkish" : "Türkçe",
+    "arabic" : "Arapça",
+    "liveHandDetection" : "Canlı El Algılama"
+}

@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "sign_sound",
+            "cwd": "sign_sound",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "sign_sound (profile mode)",
+            "cwd": "sign_sound",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "sign_sound (release mode)",
+            "cwd": "sign_sound",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
