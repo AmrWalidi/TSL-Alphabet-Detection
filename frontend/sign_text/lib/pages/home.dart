@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:sign_text/l10n/app_localizations.dart';
 import 'package:sign_text/pages/detection_page.dart';
 import 'package:sign_text/pages/language.dart';
 
