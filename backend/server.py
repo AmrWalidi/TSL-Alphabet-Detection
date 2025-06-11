@@ -1,14 +1,14 @@
 import base64
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import tensorflow as tf
+from ultralytics import YOLO
 import json
 from data_preprocess import preprocess_image
 
 app = Flask(__name__)
 CORS(app)
 
-model = tf.keras.models.load_model('tsl_model.keras')
+model = YOLO('tsl_model.pt')
 
 with open('labels.json', 'r') as f:
     class_labels = json.load(f)
@@ -26,9 +26,10 @@ def predict():
         if img is None:
             return jsonify({'error': 'No hand detected'}), 400
 
-        prediction = model.predict(img)
-        index = prediction.argmax()
-        return jsonify({'prediction': str(class_labels[str(index)])})
+        results = model(img, verbose=False)
+        box = results[0].boxes[0]
+        predicted_class = int(box.cls.item())
+        return jsonify({'prediction': str(class_labels[str(predicted_class)])})
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

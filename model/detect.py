@@ -2,14 +2,14 @@ import math
 import numpy as np
 import cv2
 import json
-import tensorflow as tf
+from ultralytics import YOLO
 from cvzone.HandTrackingModule import HandDetector
 
 cap = cv2.VideoCapture(0)
 detector = HandDetector()
-model = tf.keras.models.load_model("tsl_model.keras")
-offset = 20
-image_size = 300
+model = YOLO('tsl_project/tsl_yolo_train/weights/best.pt')
+offset = 10
+image_size = 400
 
 with open('class_labels.json', 'r') as f:
     class_labels = json.load(f)
@@ -20,7 +20,7 @@ while True:
     if not success:
         break
 
-    hands, img = detector.findHands(img)
+    hands, _ = detector.findHands(img,  draw=False)
 
     if hands:
         img_height, img_width, _ = img.shape
@@ -63,13 +63,19 @@ while True:
                 h_gap = math.ceil((image_size - h_cal) / 2)
                 img_white[h_gap:h_gap + h_cal, :] = img_resized
 
-            img_input = img_white / 255.0
-            prediction = model.predict(img_input.reshape(-1, 300, 300, 3))
-            index = prediction.argmax()
+            hand_img_rgb = cv2.cvtColor(img_white, cv2.COLOR_BGR2RGB)
 
-            cv2.putText(img_output, class_labels[str(index)], (x1, y1 - 20), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
-            cv2.rectangle(img_output, (x1, y1), (x2, y2), (0, 0, 255), 3)
-            cv2.imshow("Image Crop", img_crop)
-            cv2.imshow("Image White", img_white)
+            results = model(hand_img_rgb, verbose=False)
+            if results and len(results[0].boxes):
+                box = results[0].boxes[0]
+                predicted_class = int(box.cls.item())
+                confidence_value = float(box.conf.item())
+                label_text = class_labels.get(str(predicted_class), "Unknown")
+                cv2.putText(img_output, label_text, (x1, y1 - 20), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
+                cv2.rectangle(img_output, (x1, y1), (x2, y2), (0, 0, 255), 3)
     cv2.imshow('Image', img_output)
-    cv2.waitKey(1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()

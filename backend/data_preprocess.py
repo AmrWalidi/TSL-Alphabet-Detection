@@ -4,14 +4,14 @@ import math
 import cv2
 
 detector = HandDetector()
-offset = 20
-image_size = 300
+offset = 10
+image_size = 400
 
 def preprocess_image(image_bytes):
     numpy_array = np.frombuffer(image_bytes, dtype=np.uint8)
     original_image = cv2.imdecode(numpy_array, cv2.IMREAD_COLOR)
     rotated_90 = cv2.rotate(original_image, cv2.ROTATE_90_CLOCKWISE)
-    hands, img = detector.findHands(rotated_90)
+    hands, img = detector.findHands(rotated_90, draw=False)
 
     if hands:
         img_height, img_width, _ = img.shape
@@ -53,8 +53,7 @@ def preprocess_image(image_bytes):
                 h_gap = math.ceil((image_size - h_cal) / 2)
                 img_white[h_gap:h_gap + h_cal, :] = img_resized
 
-            img_input = img_white / 255.0
-            img_reshaped = img_input.reshape(-1, 300, 300, 3)
-            return img_reshaped
+            img_rgb = cv2.cvtColor(img_white, cv2.COLOR_BGR2RGB)
+            return img_rgb
         return None
     return None
