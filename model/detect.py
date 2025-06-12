@@ -70,6 +70,7 @@ while True:
                 box = results[0].boxes[0]
                 predicted_class = int(box.cls.item())
                 confidence_value = float(box.conf.item())
+                print(class_labels.get(str(predicted_class)))
                 label_text = class_labels.get(str(predicted_class), "Unknown")
                 cv2.putText(img_output, label_text, (x1, y1 - 20), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
                 cv2.rectangle(img_output, (x1, y1), (x2, y2), (0, 0, 255), 3)
