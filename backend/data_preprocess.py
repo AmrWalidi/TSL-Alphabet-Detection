@@ -1,11 +1,9 @@
 from cvzone.HandTrackingModule import HandDetector
 import numpy as np
-import math
 import cv2
 
 detector = HandDetector()
 offset = 10
-image_size = 400
 
 def preprocess_image(image_bytes):
     numpy_array = np.frombuffer(image_bytes, dtype=np.uint8)
@@ -16,44 +14,30 @@ def preprocess_image(image_bytes):
     if hands:
         img_height, img_width, _ = img.shape
 
-        hand1 = hands[0]
-        x, y, w, h = hand1['bbox']
+        x, y, w, h = hands[0]['bbox']
+        x2 = x + w
+        y2 = y + h
 
         if len(hands) == 2:
-            hand2 = hands[1]
-            x2, y2, w2, h2 = hand2['bbox']
-            x = min(x, x2)
-            y = min(y, y2)
-            w = w + w2
-            h = h + h2
+            x_b, y_b, w_b, h_b = hands[1]['bbox']
+            x2_b = x_b + w_b
+            y2_b = y_b + h_b
+
+            x = min(x, x_b)
+            y = min(y, y_b)
+            x2 = max(x2, x2_b)
+            y2 = max(y2, y2_b)
 
         x1 = max(0, x - offset)
         y1 = max(0, y - offset)
-        x2 = min(img_width, x + w + offset)
-        y2 = min(img_height, y + h + offset)
-
-        img_white = np.ones((image_size, image_size, 3), np.uint8) * 255
+        x2 = min(img_width, x2 + offset)
+        y2 = min(img_height, y2 + offset)
 
         if x2 > x1 and y2 > y1:
             img_crop = img[y1:y2, x1:x2]
-
-            aspect_ratio = h / w
-
-            if aspect_ratio > 1:
-                k = image_size / h
-                w_cal = math.ceil(k * w)
-                img_resized = cv2.resize(img_crop, (w_cal, image_size))
-                w_gap = math.ceil((image_size - w_cal) / 2)
-                img_white[:, w_gap:w_gap + w_cal] = img_resized
-
-            else:
-                k = image_size / w
-                h_cal = math.ceil(k * h)
-                img_resized = cv2.resize(img_crop, (image_size, h_cal))
-                h_gap = math.ceil((image_size - h_cal) / 2)
-                img_white[h_gap:h_gap + h_cal, :] = img_resized
-
-            img_rgb = cv2.cvtColor(img_white, cv2.COLOR_BGR2RGB)
-            return img_rgb
+            if img_crop.shape[0] > 20 and img_crop.shape[1] > 20:
+                gray = cv2.cvtColor(img_crop, cv2.COLOR_BGR2GRAY)
+                gray_3ch = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+                return gray_3ch
         return None
     return None

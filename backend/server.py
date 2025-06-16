@@ -27,9 +27,15 @@ def predict():
             return jsonify({'error': 'No hand detected'}), 400
 
         results = model(img, verbose=False)
-        box = results[0].boxes[0]
-        predicted_class = int(box.cls.item())
-        return jsonify({'prediction': str(class_labels[str(predicted_class)])})
+        boxes = results[0].boxes
+        if boxes and len(boxes) > 0:
+            confidences = boxes.conf
+            top_idx = confidences.argmax().item()
+            top_box = boxes[top_idx]
+            cls_id = int(top_box.cls.item())
+            label = class_labels.get(str(cls_id))
+            return jsonify({'prediction': label})
+        return None
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
