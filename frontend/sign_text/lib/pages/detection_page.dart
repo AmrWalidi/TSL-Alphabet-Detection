@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -7,32 +8,41 @@ import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:sign_text/l10n/app_localizations.dart';
+import 'package:sign_text/image_preprocessing.dart' as preprocess;
+import 'package:translator/translator.dart';
 
 class DetectionPage extends StatefulWidget {
   const DetectionPage({super.key});
+
   @override
   State<DetectionPage> createState() => _DetectionPageState();
 }
 
 class _DetectionPageState extends State<DetectionPage> {
+  final FlutterTts _flutterTts = FlutterTts();
   late CameraController _controller;
   late List<CameraDescription> cameras;
   bool _isCameraInitialized = false;
   DateTime _lastFrameSent = DateTime.now();
   String _prediction = "";
+  String _displayText = "";
   String jsonString = "";
   Map<String, dynamic> jsonData = {};
+  String _lang = 'en';
+  Map? _voice;
+  int? _selectedValue = 0;
+  List<String> languages = ['tr', 'en', 'ar'];
 
   @override
   void initState() {
     super.initState();
     _initializeCamera();
     loadJsonFromFile();
+    updateVoice();
   }
 
   Future<void> loadJsonFromFile() async {
     String jsonString = await rootBundle.loadString('assets/labels.json');
-
     jsonData = jsonDecode(jsonString);
   }
 
@@ -54,48 +64,12 @@ class _DetectionPageState extends State<DetectionPage> {
   }
 
   Future<void> _sendFrameToBackend(CameraImage image) async {
-    img.Image? imgImage = _convertCameraImageToImage(image);
+    img.Image? imgImage = preprocess.convertCameraImageToImage(image);
 
     if (imgImage != null) {
       List<int> bytes = img.encodeJpg(imgImage);
       await _sendImageToServer(bytes);
     }
-  }
-
-  img.Image? _convertCameraImageToImage(CameraImage image) {
-    return convertYUV420ToImageColor(image);
-  }
-
-  img.Image convertYUV420ToImageColor(CameraImage cameraImage) {
-    final width = cameraImage.width;
-    final height = cameraImage.height;
-    final yBuffer = cameraImage.planes[0].bytes;
-    final uBuffer = cameraImage.planes[1].bytes;
-    final vBuffer = cameraImage.planes[2].bytes;
-
-    final img.Image image = img.Image(width, height);
-
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        final int uvIndex =
-            ((x ~/ 2) + (y ~/ 2) * (cameraImage.planes[1].bytesPerRow ~/ 2))
-                .clamp(0, uBuffer.length - 1);
-        final int yIndex = y * cameraImage.planes[0].bytesPerRow + x;
-
-        final int yValue = yBuffer[yIndex];
-        final int uValue = uBuffer[uvIndex];
-        final int vValue = vBuffer[uvIndex];
-
-        int r = (yValue + 1.402 * (vValue - 128)).clamp(0, 255).toInt();
-        int g = (yValue - 0.344136 * (uValue - 128) - 0.714136 * (vValue - 128))
-            .clamp(0, 255)
-            .toInt();
-        int b = (yValue + 1.772 * (uValue - 128)).clamp(0, 255).toInt();
-
-        image.setPixel(x, y, img.getColor(r, g, b));
-      }
-    }
-    return image;
   }
 
   Future<void> _sendImageToServer(List<int> imageBytes) async {
@@ -109,10 +83,42 @@ class _DetectionPageState extends State<DetectionPage> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      _prediction = "$_prediction${jsonData[data['prediction']]}";
       setState(() {
-        _prediction = "$_prediction${jsonData[data['prediction']]}";
+        _displayText = _prediction;
       });
     }
+  }
+
+  void updateVoice() {
+    _flutterTts.getVoices.then((data) {
+      try {
+
+        List<Map> voices = List<Map>.from(data);
+        List<Map> filteredVoices =
+            voices.where((v) => v['name'].contains(_lang)).toList();
+        setState(() {
+          _voice = filteredVoices.first;
+          setVoice(_voice!);
+        });
+      } catch (e) {
+        print(e);
+      }
+    });
+  }
+
+  void setVoice(Map voice) {
+    _flutterTts.setVoice({"name": voice["name"], "locale": voice["locale"]});
+  }
+
+  void translate() async {
+    final translator = GoogleTranslator();
+    var translation =
+        await translator.translate(_prediction, from: 'tr', to: _lang);
+    setState(() {
+      _displayText = translation.toString();
+    });
+    updateVoice();
   }
 
   @override
@@ -137,16 +143,153 @@ class _DetectionPageState extends State<DetectionPage> {
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
+                color: Colors.white,
                 width: double.infinity,
                 height: 200,
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(color: Color(0XFFDDDADA)),
-                child: Text(
-                  _prediction,
-                  style: GoogleFonts.khula(
-                    color: Colors.black,
-                  ),
-                ),
+                child: Container(
+                    margin: EdgeInsets.all(11.0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8.0),
+                      border:
+                          Border.all(color: Colors.indigo.shade400, width: 3.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 10,
+                          spreadRadius: -5,
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Stack(
+                        children: [
+                          Text(
+                            _displayText,
+                            style: GoogleFonts.khula(
+                                color: Colors.black, fontSize: 16.0),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return StatefulBuilder(
+                                                builder: (builder, setState) {
+                                              return AlertDialog(
+                                                title: Text(
+                                                  loc.selectLanguage,
+                                                  style: GoogleFonts.khula(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                content: SizedBox(
+                                                  height: 200.0,
+                                                  // Set a fixed height
+                                                  width: double.maxFinite,
+                                                  child: ListView(
+                                                    shrinkWrap: true,
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 25),
+                                                    children: [
+                                                      RadioListTile<int>(
+                                                        value: 0,
+                                                        groupValue:
+                                                            _selectedValue,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            _selectedValue =
+                                                                value;
+                                                            _lang = languages[
+                                                                value!];
+                                                          });
+                                                        },
+                                                        title: Text(loc.turkish,
+                                                            style: GoogleFonts
+                                                                .khula(
+                                                                    fontSize:
+                                                                        20)),
+                                                      ),
+                                                      RadioListTile<int>(
+                                                        value: 1,
+                                                        groupValue:
+                                                            _selectedValue,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            _selectedValue =
+                                                                value;
+                                                            _lang = languages[
+                                                                value!];
+                                                          });
+                                                        },
+                                                        title: Text(loc.english,
+                                                            style: GoogleFonts
+                                                                .khula(
+                                                                    fontSize:
+                                                                        20)),
+                                                      ),
+                                                      RadioListTile<int>(
+                                                        value: 2,
+                                                        groupValue:
+                                                            _selectedValue,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            _selectedValue =
+                                                                value;
+                                                            _lang = languages[
+                                                                value!];
+                                                          });
+                                                        },
+                                                        title: Text(loc.arabic,
+                                                            style: GoogleFonts
+                                                                .khula(
+                                                                    fontSize:
+                                                                        20)),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Text(loc.cancel)),
+                                                  TextButton(
+                                                      onPressed: () {
+                                                        translate();
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Text(loc.apply))
+                                                ],
+                                              );
+                                            });
+                                          });
+                                    },
+                                    icon: Icon(Icons.translate),
+                                    color: Colors.grey[800]),
+                                SizedBox(
+                                  width: 20.0,
+                                ),
+                                IconButton(
+                                    onPressed: () {
+                                      _flutterTts.speak(_displayText);
+                                    },
+                                    icon: Icon(Icons.volume_up),
+                                    color: Colors.grey[800])
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    )),
               ),
             ),
           ],

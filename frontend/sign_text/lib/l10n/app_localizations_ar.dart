@@ -25,4 +25,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get liveHandDetection => 'كشف اليد المباشر';
+
+  @override
+  String get selectLanguage => 'إختر اللغة';
+
+  @override
+  String get apply => 'تطبيق';
+
+  @override
+  String get cancel => 'إلغاء';
 }

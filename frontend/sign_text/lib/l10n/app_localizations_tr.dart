@@ -25,4 +25,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get liveHandDetection => 'Canlı El Algılama';
+
+  @override
+  String get selectLanguage => 'Dil Seçiniz';
+
+  @override
+  String get apply => 'Uygula';
+
+  @override
+  String get cancel => 'İptal et';
 }

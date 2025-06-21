@@ -22,5 +22,17 @@
     "liveHandDetection" : "Live Hand Detection",
     "@liveHandDetection": {
         "description" : "live Hand Detection"
+    },
+    "selectLanguage" : "Select Language",
+    "@selectLanguage": {
+            "description" : "Select Language"
+        },
+    "apply" : "Apply",
+    "@apply": {
+        "description" : "Apply"
+    },
+    "cancel": "Cancel",
+    "@cancel": {
+        "description" : "Cancel"
     }
 }

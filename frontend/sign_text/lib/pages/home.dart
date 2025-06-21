@@ -6,6 +6,7 @@ import 'package:sign_text/pages/language.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
+
   final String title;
 
   @override
@@ -13,6 +14,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -27,7 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: <Widget>[
           IconButton(
             icon: Icon(
-              Icons.public,
+              Icons.language,
               color: Colors.white,
             ),
             onPressed: () {

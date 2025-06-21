@@ -4,5 +4,8 @@
     "english" : "إنجليزية",
     "turkish" : "التركية",
     "arabic" : "العربية",
-    "liveHandDetection" : "كشف اليد المباشر"
+    "liveHandDetection" : "كشف اليد المباشر",
+    "selectLanguage" : "إختر اللغة",
+    "apply" : "تطبيق",
+    "cancel": "إلغاء"
 }

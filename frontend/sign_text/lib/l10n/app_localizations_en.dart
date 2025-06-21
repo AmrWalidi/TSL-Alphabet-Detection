@@ -25,4 +25,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get liveHandDetection => 'Live Hand Detection';
+
+  @override
+  String get selectLanguage => 'Select Language';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get cancel => 'Cancel';
 }
