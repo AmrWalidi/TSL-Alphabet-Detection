@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 30
+names: ['A', 'B', 'C', 'C_', 'D', 'E', 'F', 'G', 'G-', 'H', 'I', 'I-', 'J', 'K', 'L', 'M', 'N', 'O', 'O--', 'P', 'R', 'S', 'S_', 'T', 'U', 'U--', 'V', 'Y', 'Z', 'space']
+
+roboflow:
+  workspace: computer-vision-cuvyr
+  project: tsl-detection
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/computer-vision-cuvyr/tsl-detection/dataset/2
