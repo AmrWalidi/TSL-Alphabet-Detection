@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -76,7 +77,7 @@ class _DetectionPageState extends State<DetectionPage> {
     String base64Image = base64Encode(imageBytes);
 
     final response = await http.post(
-      Uri.parse('https://ec2f-193-140-142-102.ngrok-free.app/predict'),
+      Uri.parse('https://7dd0-213-238-174-187.ngrok-free.app/predict'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'image': base64Image}),
     );
@@ -102,7 +103,9 @@ class _DetectionPageState extends State<DetectionPage> {
           setVoice(_voice!);
         });
       } catch (e) {
-        print(e);
+        if (kDebugMode) {
+          print(e);
+        }
       }
     });
   }

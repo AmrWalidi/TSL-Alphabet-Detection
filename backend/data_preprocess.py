@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 
 detector = HandDetector()
-offset = 10
+offset = 20
 
 def preprocess_image(image_bytes):
     numpy_array = np.frombuffer(image_bytes, dtype=np.uint8)
